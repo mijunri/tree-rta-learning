@@ -2,7 +2,7 @@ package rta;
 
 import words.TimeWord;
 
-public class TimeGuard implements Cloneable{
+public class TimeGuard{
 
     public static final int MAX_TIME = 1000;
 
@@ -147,9 +147,8 @@ public class TimeGuard implements Cloneable{
         return stringBuilder.toString();
     }
 
-    @Override
-    public TimeGuard clone() throws CloneNotSupportedException {
-        return (TimeGuard) super.clone();
+    public TimeGuard copy(){
+        return new TimeGuard(leftOpen,rightOpen,left,right);
     }
 
     public String toExpression(){

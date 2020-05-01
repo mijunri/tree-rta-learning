@@ -25,15 +25,8 @@ public class RTAEquivalenceQuery implements EquivalenceQuery{
 
     @Override
     public TimeWords findCounterExample(RTA hypotheses){
-        RTA negRTA = null;
-        RTA negHypothesis = null;
-
-        try {
-            negRTA = RTABuilder.getNegtiveRTA(rta);
-            negHypothesis = RTABuilder.getNegtiveRTA(hypotheses);
-        } catch (CloneNotSupportedException e) {
-            e.printStackTrace();
-        }
+        RTA negRTA = RTABuilder.getNegtiveRTA(rta);
+        RTA negHypothesis = RTABuilder.getNegtiveRTA(hypotheses);
 
         RTA r1 = RTABuilder.getCartesian(negRTA,hypotheses);
         TimeWords w1 = counterExample(r1);

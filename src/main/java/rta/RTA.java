@@ -234,9 +234,16 @@ public class RTA {
         }
         List<Transition> transitionList1 = new ArrayList<>();
         for(Transition t:transitionList){
-
-            Transition t1 = new Transition()
+            Location source = locationMap.get(t.getTargetLocation());
+            Location target = locationMap.get(t.getTargetLocation());
+            TimeGuard guard = t.getTimeGuard().copy();
+            Transition t1 = new Transition(source,target,guard,t.getAction());
+            transitionList1.add(t1);
         }
+        return new RTA(name1,sigma1,locationList1,transitionList1);
     }
 
+    public int size(){
+        return locationList.size();
+    }
 }
