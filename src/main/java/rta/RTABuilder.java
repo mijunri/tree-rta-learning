@@ -117,77 +117,40 @@ public class RTABuilder {
         }
 
         List<Location> locationList = new ArrayList<>();
+        Map<Integer,Location> map = new HashMap<>();
         for(Location l1:r1.getLocationList()){
             for(Location l2:r2.getLocationList()){
-
+                String name = l1.getName()+":"+l2.getName();
+                int id = (l2.getId()-1)*r1.size()+l1.getId();
+                boolean init = l1.isInit() && l2.isInit();
+                boolean accpted = l1.isAccept() && l2.isAccept();
+                Location location = new Location(id,name,init,accpted);
+                locationList.add(location);
             }
         }
 
+        List<Transition> transitionList = new ArrayList<>();
+        for(Transition t1:r1.getTransitionList()){
+            for(Transition t2: r2.getTransitionList()){
+                if(!t1.getAction().equals(t2.getAction())){
+                    continue;
+                }
 
-//        List<Location> locationList1 = r1.getLocationList();
-//        List<Location> locationList2 = r2.getLocationList();
-//        Set<String> sigma = new HashSet<>();
-//        sigma.addAll(r1.getSigma());
-//        sigma.addAll(r2.getSigma());
-//        String name = r1.getName()+"-"+r2.getName();
-//
-//
-//        //location的笛卡尔积
-//        int len1 = locationList1.size();
-//        int len2 = locationList2.size();
-//        List<Location> locationList = new ArrayList<>();
-//        for(int i = 0; i < len1; i ++){
-//            Location location1 = locationList1.get(i);
-//            for(int j = 0; j < len2; j ++){
-//                Location location2 = locationList2.get(j);
-//                int id = (i)*len2 + (j+1);
-//                String locationName = location1.getName()+"-"+location2.getName();
-//                boolean init = location1.isInit() && location2.isInit();
-//                boolean accpted = location1.isAccept() && location2.isAccept();
-//                Location location = new Location(id,locationName,init,accpted);
-//                locationList.add(location);
-//            }
-//        }
-//
-//
-//        //transition的笛卡尔积
-//        List<Transition> transitionList = new ArrayList<>();
-//
-//        for(int i = 0; i < len1; i++){
-//            for(int j = 0; j < len2; j++){
-//                for(String action:sigma){
-//                    Location location1 = locationList1.get(i);
-//                    Location location2 = locationList2.get(j);
-//                    List<Transition> transitionList1 = r1.getTransitions(location1,action,null);
-//                    List<Transition> transitionList2 = r2.getTransitions(location2,action,null);
-//                    int tranLen1 = transitionList1.size();
-//                    int tranLen2 = transitionList2.size();
-//                    Location newSourceLocation = locationList.get((i)*len2 + (j));
-//
-//                    for(int m = 0; m < tranLen1; m++){
-//                        Transition tran1 = transitionList1.get(m);
-//                        TimeGuard timeGuard1 = tran1.getTimeGuard();
-//                        Location target1 = tran1.getTargetLocation();
-//                        int index1 = r1.indexof(target1);
-//
-//                        for(int n = 0; n < tranLen2; n++){
-//                            Transition tran2 = transitionList2.get(n);
-//                            TimeGuard timeGuard2 = tran2.getTimeGuard();
-//                            Location target2 = tran2.getTargetLocation();
-//                            int index2 = r2.indexof(target2);
-//                            Location newTargetLocation = locationList.get((index1)*len2 + (index2));
-//                            TimeGuard timeGuard = timeGuard1.intersection(timeGuard2);
-//                            if(timeGuard != null){
-//                                Transition transition = new Transition(newSourceLocation,newTargetLocation,timeGuard,action);
-//                                transitionList.add(transition);
-//                            }
-//                        }
-//                    }
-//                }
-//            }
-//        }
-//
-//        return new RTA(name,sigma,locationList,transitionList);
+                TimeGuard guard = t1.getTimeGuard().intersection(t2.getTimeGuard());
+                if(guard == null){
+                    continue;
+                }
+
+                int sourceId = (t2.getSourceId()-1)*r1.size()+t1.getSourceId();
+                int targetId = (t2.getTargetId()-1)*r1.size()+t1.getTargetId();
+                Location source = map.get(sourceId);
+                Location target = map.get(targetId);
+                Transition t = new Transition(map.get(sourceId),map.get(targetId),guard,t1.getAction());
+                transitionList.add(t);
+            }
+        }
+        String name = r1.getName()+":"+r2.getName();
+        return new RTA(name,sigma,locationList,transitionList);
     }
 
 
