@@ -162,64 +162,36 @@ public class RTA {
 
     @Override
     public String toString(){
-
-        JSONObject jsonObject = new JSONObject();
-        jsonObject.put("name",name);
-
-        JSONArray stateArray = new JSONArray();
-        for(Location l: locationList){
-            stateArray.add(l.getId());
+        StringBuilder sb = new StringBuilder();
+        sb.append("{\n\t").append("\"sigma\":[");
+        for(String action: getSigma()){
+            sb.append("\""+action+"\",");
         }
-        jsonObject.put("l",stateArray);
-
-        JSONArray sigmaArray = new JSONArray();
-        for(String s: sigma){
-            sigmaArray.add(s);
+        sb.deleteCharAt(sb.length()-1).append("],\n\t").append("\"init\":");
+        int init = getInitLocation().getId();
+        sb.append(init).append(",\n\t").append("\"name\":\"").append(getName()).append("\"\n\t");
+        sb.append("\"s\":[");
+        for(Location l:getLocationList()){
+            sb.append(l.getId()).append(",");
         }
-        jsonObject.put("sigma",sigmaArray);
+        sb.deleteCharAt(sb.length()-1).append("]\n\t\"tran\":{\n");
 
-        JSONObject tranJson = new JSONObject();
-        for(int i = 0; i < transitionList.size();i++){
-            JSONArray tranArray = new JSONArray();
-            Transition t = transitionList.get(i);
-            tranArray.add(t.getSourceId());
-            tranArray.add(t.getAction());
-            tranArray.add(t.getTimeGuard().toString());
-            tranArray.add(t.getTargetId());
-            tranJson.put(String.valueOf(i),tranArray);
+        RTABuilder.sortTran(getTransitionList());
+        for(int i = 0; i < getTransitionList().size();i++){
+            Transition t = getTransitionList().get(i);
+            sb.append("\t\t\"").append(i).append("\":[")
+                    .append(t.getSourceId()).append(",")
+                    .append("\"").append(t.getAction()).append("\",")
+                    .append("\"").append(t.getTimeGuard()).append("\",")
+                    .append(t.getTargetId()).append("]").append(",\n");
         }
-        jsonObject.put("tran",tranJson);
-
-        Location initLocation = getInitLocation();
-        int initId = initLocation.getId();
-        jsonObject.put("init",initId);
-
-        JSONArray acceptArray = new JSONArray();
-        for(Location acceptLocation: getAcceptedLocations()){
-            acceptArray.add(acceptLocation.getId());
+        sb.deleteCharAt(sb.length()-2);
+        sb.append("\t},\n\t").append("\"accpted\":[");
+        for(Location l:getAcceptedLocations()){
+            sb.append(l.getId()).append(",");
         }
-        jsonObject.put("accept",acceptArray);
-
-        String str = jsonObject.toString();
-        StringBuilder stringBuilder = new StringBuilder();
-        stringBuilder.append(str);
-
-        String[] strings = new String[]{
-                "\"sigma","\"init","\"name","\"tran","\"accept","\"l","}"
-        };
-        for(int i = 0; i < strings.length; i++){
-            int index = stringBuilder.indexOf(strings[i]);
-            stringBuilder.insert(index,"\n  ");
-        }
-        int index1 = stringBuilder.indexOf("]}");
-        stringBuilder.insert(index1+1,"\n");
-
-
-        for(int i = 0; i< transitionList.size();i++){
-            int index = stringBuilder.indexOf("\""+i+"\"");
-            stringBuilder.insert(index,"\n    ");
-        }
-        return stringBuilder.toString();
+        sb.deleteCharAt(sb.length()-1).append("]\n}");
+        return sb.toString();
     }
 
     public RTA copy(){
@@ -234,7 +206,7 @@ public class RTA {
         }
         List<Transition> transitionList1 = new ArrayList<>();
         for(Transition t:transitionList){
-            Location source = locationMap.get(t.getTargetLocation());
+            Location source = locationMap.get(t.getSourceLocation());
             Location target = locationMap.get(t.getTargetLocation());
             TimeGuard guard = t.getTimeGuard().copy();
             Transition t1 = new Transition(source,target,guard,t.getAction());

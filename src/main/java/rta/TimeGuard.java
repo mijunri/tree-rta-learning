@@ -169,37 +169,41 @@ public class TimeGuard{
 
     //求和另一个timeGuard的交集
     public TimeGuard intersection(TimeGuard timeGuard){
-        int left,right;
-        boolean leftOpen, rightOpen;
-        //左边小
-        boolean leftLess = (this.left < timeGuard.left) ||
-                (this.left == timeGuard.left && timeGuard.leftOpen);
-        //右边大
-        boolean rightMore = (this.right > timeGuard.right) ||
-                (this.right == timeGuard.right && !timeGuard.rightOpen);
-
-        if(leftLess){
-            left = timeGuard.left;
-            leftOpen = timeGuard.leftOpen;
-        }else{
-            left = this.left;
-            leftOpen = this.leftOpen;
+        int l,r;
+        boolean lo,ro;
+        if(left < timeGuard.left){
+            l = timeGuard.left;
+            lo = timeGuard.leftOpen;
+        }else if(left == timeGuard.left){
+            l = timeGuard.left;
+            lo = leftOpen || timeGuard.leftOpen;
+        }else {
+            l = left;
+            lo = leftOpen;
         }
 
-        if(rightMore){
-            right = timeGuard.right;
-            rightOpen = timeGuard.rightOpen;
-        }else{
-            right = this.right;
-            rightOpen = this.rightOpen;
+        if(right > timeGuard.right){
+            r = timeGuard.right;
+            ro = timeGuard.rightOpen;
+        }else if(right == timeGuard.right){
+            r = timeGuard.right;
+            ro = rightOpen || timeGuard.rightOpen;
+        }else {
+            r = right;
+            ro = rightOpen;
         }
 
-        boolean ok = (left < right) || (left == right && !leftOpen && !rightOpen);
-
-        if(ok){
-            return new TimeGuard(leftOpen,rightOpen,left,right);
+        if(l > r){
+            return null;
+        }else if(l == r){
+            if(lo || ro){
+                return null;
+            }else {
+                return new TimeGuard(lo,ro,l,r);
+            }
+        }else {
+            return new TimeGuard(lo,ro,l,r);
         }
-        return null;
     }
 
     @Override

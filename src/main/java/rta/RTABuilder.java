@@ -125,6 +125,7 @@ public class RTABuilder {
                 boolean init = l1.isInit() && l2.isInit();
                 boolean accpted = l1.isAccept() && l2.isAccept();
                 Location location = new Location(id,name,init,accpted);
+                map.put(id,location);
                 locationList.add(location);
             }
         }
@@ -158,73 +159,56 @@ public class RTABuilder {
 
         RTA copy = rta.copy();
         Location sink = new Location(copy.size()+1,"sink",false,false);
-        for(String action:copy.getSigma()){
-            TimeGuard timeGuard = new TimeGuard(false,false,0,TimeGuard.MAX_TIME);
-            Transition transition = new Transition(sink,sink,timeGuard,action);
-            copy.getTransitionList().add(transition);
-        }
 
+        List<Transition> transitionList0 = new ArrayList<>();
         for(Location l: copy.getLocationList()){
             for(String action: copy.getSigma()){
                 List<Transition> transitionList = rta.getTransitions(l,action,null);
+                if(transitionList.isEmpty()){
+                    continue;
+                }
                 sortTran(transitionList);
-
+                Transition t0 = transitionList.get(0);
+                TimeGuard g0 = t0.getTimeGuard();
+                if(g0.getLeft()!=0 || g0.isLeftOpen()){
+                    TimeGuard guard = new TimeGuard(false,!g0.isLeftOpen(),0,g0.getLeft());
+                    Transition t = new Transition(l,sink,guard,action);
+                    transitionList0.add(t);
+                }
+                for(int i = 1; i < transitionList.size(); i++){
+                    Transition t1 = transitionList.get(i);
+                    TimeGuard g1 = t1.getTimeGuard();
+                    if(g0.getRight()!= g1.getLeft() || (g0.isRightOpen() && g1.isLeftOpen())){
+                        TimeGuard guard = new TimeGuard(!g0.isRightOpen(),!g1.isLeftOpen(),g0.getRight(),g1.getLeft());
+                        Transition t = new Transition(l,sink,guard,action);
+                        transitionList0.add(t);
+                    }
+                    t0 = t1;
+                    g0 = t0.getTimeGuard();
+                }
             }
         }
+        if(transitionList0.isEmpty()){
+            return copy;
+        }else {
+            for(String action:copy.getSigma()){
+                TimeGuard timeGuard = new TimeGuard(false,false,0,TimeGuard.MAX_TIME);
+                Transition transition = new Transition(sink,sink,timeGuard,action);
+                transitionList0.add(transition);
+            }
+            copy.getLocationList().add(sink);
+            copy.getTransitionList().addAll(transitionList0);
+            return copy;
+        }
 
-
-//        for(Location l:oldLocationList){
-//            for(String action:sigma){
-//                List<Transition> transitionList1 = rta.getTransitions(l,action,null);
-//                TimeGuard timeGuard = new TimeGuard(false,true,0,0);
-//                Transition pre = new Transition(sinkLocation,sinkLocation,timeGuard,action);
-//                for(int i = 0; i < transitionList1.size(); i++){
-//                    Transition current = transitionList1.get(i);
-//                    TimeGuard preTimeGuard = pre.getTimeGuard();
-//                    TimeGuard currentTimeGuard = current.getTimeGuard();
-//                    boolean var0 = preTimeGuard.getRight() ==0 && currentTimeGuard.getLeft()==0;
-//                    boolean var1 = currentTimeGuard.getLeft()==preTimeGuard.getRight();
-//                    boolean var2 = currentTimeGuard.isLeftOpen();
-//                    boolean var3 = !preTimeGuard.isRightOpen();
-//                    if(var0 || (var1 && var2 && var3)){
-//                        pre = current;
-//                    }else {
-//                        boolean leftO = !preTimeGuard.isRightOpen();
-//                        boolean rightO = !currentTimeGuard.isLeftOpen();
-//                        int left = preTimeGuard.getRight();
-//                        int right = currentTimeGuard.getLeft();
-//                        TimeGuard timeGuard1 = new TimeGuard(leftO,rightO,left,right);
-//                        Transition t = new Transition(l,sinkLocation,timeGuard1,action);
-//                        transitionList.add(t);
-//                        pre = current;
-//                    }
-//                }
-//                TimeGuard preTimeGuard = pre.getTimeGuard();
-//                if(preTimeGuard.getRight()!=TimeGuard.MAX_TIME){
-//                    boolean leftO = !preTimeGuard.isRightOpen();
-//                    boolean rightO = false;
-//                    int left = preTimeGuard.getRight();
-//                    int right = TimeGuard.MAX_TIME;
-//                    TimeGuard timeGuard1 = new TimeGuard(leftO,rightO,left,right);
-//                    Transition t = new Transition(l,sinkLocation,timeGuard1,action);
-//                    transitionList.add(t);
-//                }
-//            }
-//        }
-//        RTA rta1 =    new RTA(rta.getName(),sigma,locationList,transitionList);
-//        List<Transition> toSinkTransitionList = rta1.getTransitions(null,null,sinkLocation);
-//        if(toSinkTransitionList.size() == sigma.size()){
-//            return rta;
-//        }
-//        return rta1;
     }
 
-    private static void sortTran(List<Transition> transitionList){
+    public static void sortTran(List<Transition> transitionList){
         transitionList.sort(new Comparator<Transition>() {
             @Override
             public int compare(Transition o1, Transition o2) {
-                if(o1.getSourceLocation().getId() != o2.getSourceLocation().getId()){
-                    return o1.getSourceLocation().getId() - o2.getSourceLocation().getId();
+                if(o1.getSourceId() != o2.getSourceId()){
+                    return o1.getSourceId() - o2.getSourceId();
                 }
                 if(o1.getAction().compareTo(o2.getAction())!= 0 ){
                     return o1.getAction().compareTo(o2.getAction());
@@ -234,7 +218,7 @@ public class RTABuilder {
                 }
 
                 if(o1.getTimeGuard().isLeftOpen() != o2.getTimeGuard().isLeftOpen()){
-                    return o1.getTimeGuard().isLeftOpen()?-1:1;
+                    return o1.getTimeGuard().isLeftOpen()?1:-1;
                 }
                 return 1;
             }
