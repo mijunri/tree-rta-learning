@@ -91,8 +91,6 @@ public class RTABuilder {
         return RTABuilder.completeRTA(rta);
     }
 
-
-
     public static RTA getNegtiveRTA(RTA rta){
         RTA neg = rta.copy();
         for(Location l:neg.getLocationList()){
@@ -153,7 +151,6 @@ public class RTABuilder {
         String name = r1.getName()+":"+r2.getName();
         return new RTA(name,sigma,locationList,transitionList);
     }
-
 
     public static RTA completeRTA(RTA rta){
 
@@ -223,5 +220,39 @@ public class RTABuilder {
                 return 1;
             }
         });
+    }
+
+    public static RTA evidToRTA(RTA evidenceRTA){
+        for(Location l:evidenceRTA.getLocationList()){
+            for(String action: evidenceRTA.getSigma()){
+                List<Transition> transitionList1 = evidenceRTA.getTransitions(l,action,null);
+                transitionList1.sort(new Comparator<Transition>() {
+                    @Override
+                    public int compare(Transition o1, Transition o2) {
+                        if(o1.getTimeGuard().getLeft() < o2.getTimeGuard().getLeft()){
+                            return -1;
+                        }
+                        if(o1.getTimeGuard().getLeft() == o2.getTimeGuard().getLeft()
+                                && !o1.getTimeGuard().isLeftOpen()){
+                            return -1;
+                        }
+                        return 1;
+                    }
+                });
+                for(int i = 0; i < transitionList1.size(); i++){
+                    if(i < transitionList1.size()-1){
+                        TimeGuard timeGuard1 = transitionList1.get(i).getTimeGuard();
+                        TimeGuard timeGuard2 = transitionList1.get(i+1).getTimeGuard();
+                        timeGuard1.setRight(timeGuard2.getLeft());
+                        timeGuard1.setRightOpen(!timeGuard2.isLeftOpen());
+                    }else {
+                        TimeGuard timeGuard1 = transitionList1.get(i).getTimeGuard();
+                        timeGuard1.setRight(TimeGuard.MAX_TIME);
+                        timeGuard1.setRightOpen(false);
+                    }
+                }
+            }
+        }
+        return evidenceRTA;
     }
 }

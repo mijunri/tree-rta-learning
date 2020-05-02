@@ -1,7 +1,19 @@
 package lstar;
 
+import rta.RTA;
+import words.TimeWords;
+
+import java.util.Set;
+
 public interface LearningMethod {
-    void setMembership(Membership membership);
-    void setEquivalenceQuery(EquivalenceQuery equivalenceQuery);
+
     void learn();
+
+    void refine(TimeWords timeWords);
+
+    void buildHypothesis();
+
+    RTA getFinalHypothesis();
+
+
 }

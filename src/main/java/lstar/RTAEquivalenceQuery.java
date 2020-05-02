@@ -25,6 +25,8 @@ public class RTAEquivalenceQuery implements EquivalenceQuery{
 
     @Override
     public TimeWords findCounterExample(RTA hypotheses){
+        count++;
+
         RTA negRTA = RTABuilder.getNegtiveRTA(rta);
         RTA negHypothesis = RTABuilder.getNegtiveRTA(hypotheses);
 
@@ -41,6 +43,11 @@ public class RTAEquivalenceQuery implements EquivalenceQuery{
         }
 
         return null;
+    }
+
+    @Override
+    public Set<String> getSigma() {
+        return rta.getSigma();
     }
 
 

@@ -50,5 +50,10 @@ public class TimeWordsUtil {
     }
 
 
+    public static TimeWords actionWords(String action){
+        TimeWord timeWord = new TimeWord(action,0);
+        TimeWords timeWords = new TimeWords(timeWord);
+        return timeWords;
+    }
 
 }

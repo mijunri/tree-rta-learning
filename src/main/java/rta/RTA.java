@@ -219,7 +219,4 @@ public class RTA {
         return locationList.size();
     }
 
-    public void sortTransition(){
-
-    }
 }

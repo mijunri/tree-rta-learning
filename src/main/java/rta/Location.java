@@ -1,6 +1,8 @@
 package rta;
 
-public class Location implements Cloneable{
+import java.util.Objects;
+
+public class Location{
     private int id;
     private String name;
     private boolean init;
@@ -54,14 +56,29 @@ public class Location implements Cloneable{
         this.accept = accept;
     }
 
-    @Override
-    public Location clone() throws CloneNotSupportedException {
-        return (Location) super.clone();
-    }
 
     @Override
     public String toString(){
         return "id:"+id+" ,name:"+name;
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()){
+            return false;
+        }
+        Location location = (Location) o;
+        return id == location.id &&
+                init == location.init &&
+                accept == location.accept &&
+                name.equals(location.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, init, accept);
+    }
 }

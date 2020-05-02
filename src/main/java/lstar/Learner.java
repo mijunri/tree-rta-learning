@@ -6,7 +6,7 @@ import lstar.Membership;
 import rta.RTA;
 
 public class Learner {
-    private RTA rta;
+
     private Membership membership;
     private EquivalenceQuery equivalenceQuery;
     private LearningMethod learnMethod;
@@ -14,13 +14,10 @@ public class Learner {
     private int equivalenceQueryCount;
     private long costTime;
 
-    public Learner(RTA rta, Membership membership, EquivalenceQuery equivalenceQuery, LearningMethod learnMethod) {
-        this.rta = rta;
+    public Learner(Membership membership, EquivalenceQuery equivalenceQuery, LearningMethod learnMethod) {
         this.membership = membership;
         this.equivalenceQuery = equivalenceQuery;
         this.learnMethod = learnMethod;
-        learnMethod.setEquivalenceQuery(equivalenceQuery);
-        learnMethod.setMembership(membership);
     }
 
     public void doExperiment(){
