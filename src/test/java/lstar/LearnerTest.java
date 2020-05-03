@@ -14,7 +14,7 @@ public class LearnerTest {
 
     @Test
     public void doExperiment() throws IOException {
-        RTA a = RTABuilder.getRTAFromJsonFile(".\\src\\main\\resources\\rtaJson\\14_4_4\\14_4_4-20.json");
+        RTA a = RTABuilder.getRTAFromJsonFile(".\\src\\main\\resources\\rtaJson\\14_4_4\\14_4_4-1.json");
         Membership membership = new RTAMembership(a);
         EquivalenceQuery equivalenceQuery = new RTAEquivalenceQuery(a);
         LearningMethod learningMethod = new DTree("hypothesis",a.getSigma(),membership,equivalenceQuery);
