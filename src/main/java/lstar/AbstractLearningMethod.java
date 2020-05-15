@@ -24,13 +24,13 @@ public abstract class AbstractLearningMethod implements LearningMethod {
     public void learn() {
         TimeWords ce = null;
         buildHypothesis();
-//        System.out.println(hypothesis);
+        System.out.println(hypothesis);
         while ((ce = equivalenceQuery.findCounterExample(hypothesis)) != null){
             do{
-//                System.out.println(ce);
+                System.out.println(ce);
                 refine(ce);
                 buildHypothesis();
-//                System.out.println(hypothesis);
+                System.out.println(hypothesis);
             }while (answer(ce) != hypothesis.isAccepted(ce));
         }
         finalHypothesis = hypothesis;

@@ -32,17 +32,20 @@ public class RTAEquivalenceQuery implements EquivalenceQuery{
 
         RTA r1 = RTABuilder.getCartesian(negRTA,hypotheses);
         TimeWords w1 = counterExample(r1);
-        if(w1!=null){
-            return w1;
-        }
+
 
         RTA r2 = RTABuilder.getCartesian(rta,negHypothesis);
         TimeWords w2 = counterExample(r2);
-        if(w2!=null){
+
+        if(w1==null){
             return w2;
         }
 
-        return null;
+        if(w2==null){
+            return w1;
+        }
+
+        return w1.size()<=w2.size()?w1:w2;
     }
 
     @Override
@@ -54,14 +57,14 @@ public class RTAEquivalenceQuery implements EquivalenceQuery{
     private TimeWords counterExample(RTA rta){
         Set<Location> visited = new HashSet<>();
         Map<Location,TimeWords> map = new HashMap<>();
-        Deque<Location> stack = new LinkedList<>();
+        Deque<Location> queue = new LinkedList<>();
 
         Location initLocation = rta.getInitLocation();
         visited.add(initLocation);
         map.put(initLocation,TimeWords.EMPTY_WORDS);
-        stack.push(initLocation);
-        while(!stack.isEmpty()){
-            Location current = stack.pop();
+        queue.offer(initLocation);
+        while(!queue.isEmpty()){
+            Location current = queue.poll();
             List<Transition> transitions = rta.getTransitions(current,null,null);
             for(Transition t:transitions){
                 Location source = t.getSourceLocation();
@@ -72,17 +75,25 @@ public class RTAEquivalenceQuery implements EquivalenceQuery{
                     TimeWord word = t.toWord();
                     TimeWords words = TimeWordsUtil.concat(locationWords,word);
                     map.put(target,words);
-                    stack.push(target);
+                    queue.offer(target);
                 }
             }
         }
 
         List<Location> acceptedLocations = rta.getAcceptedLocations();
+        TimeWords ce = null;
+        Set<TimeWords> set = new HashSet<>();
         for(Location l:acceptedLocations){
             if(map.containsKey(l)){
-                return map.get(l);
+                TimeWords t = map.get(l);
+                set.add(t);
+                if(ce == null){
+                    ce = t;
+                }else {
+                    ce = ce.size()<=t.size()?ce:t;
+                }
             }
         }
-        return null;
+        return ce;
     }
 }
