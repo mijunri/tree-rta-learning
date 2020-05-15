@@ -183,6 +183,12 @@ public class RTABuilder {
                     t0 = t1;
                     g0 = t0.getTimeGuard();
                 }
+                g0 = t0.getTimeGuard();
+                if(g0.getRight()!=TimeGuard.MAX_TIME ){
+                    TimeGuard guard = new TimeGuard(!g0.isRightOpen(),false,g0.getRight(),TimeGuard.MAX_TIME);
+                    Transition t = new Transition(l,sink,guard,action);
+                    transitionList0.add(t);
+                }
             }
         }
         if(transitionList0.isEmpty()){
