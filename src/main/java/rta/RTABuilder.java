@@ -162,7 +162,9 @@ public class RTABuilder {
             for(String action: copy.getSigma()){
                 List<Transition> transitionList = rta.getTransitions(l,action,null);
                 if(transitionList.isEmpty()){
-                    continue;
+                    TimeGuard guard = new TimeGuard(false,false,0,TimeGuard.MAX_TIME);
+                    Transition t = new Transition(l,sink,guard,action);
+                    transitionList0.add(t);
                 }
                 sortTran(transitionList);
                 Transition t0 = transitionList.get(0);

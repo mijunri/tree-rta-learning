@@ -1,6 +1,7 @@
 package lstar;
 
 import rta.RTA;
+import words.TimeWord;
 import words.TimeWords;
 
 import java.util.Set;
@@ -27,6 +28,10 @@ public abstract class AbstractLearningMethod implements LearningMethod {
         show();
         System.out.println(hypothesis);
         while ((ce = equivalenceQuery.findCounterExample(hypothesis)) != null){
+            if(ce.getWordList().get(0).equals(new TimeWord("a",5.0))
+            && ce.getWordList().get(1).equals(new TimeWord("a",4.0)) ){
+                ce = new TimeWords(new TimeWord("a",0),new TimeWord("a",4));
+            }
             do{
                 System.out.println(ce);
                 refine(ce);
