@@ -165,6 +165,7 @@ public class RTABuilder {
                     TimeGuard guard = new TimeGuard(false,false,0,TimeGuard.MAX_TIME);
                     Transition t = new Transition(l,sink,guard,action);
                     transitionList0.add(t);
+                    continue;
                 }
                 sortTran(transitionList);
                 Transition t0 = transitionList.get(0);
