@@ -92,6 +92,7 @@ public class DTree extends AbstractLearningMethod {
         }
 
         if(!isPass){
+
             TimeWords source = map.get(qu).getSuffix();
             TimeWords target = map.get(qv).getSuffix();
             Iterator<Track> iterator = trackSet.iterator();

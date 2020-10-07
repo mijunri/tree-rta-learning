@@ -301,7 +301,7 @@ public class ObservationTable extends AbstractLearningMethod {
             }
             sb.append("\n");
 
-            if(i == slen){
+            if(i == slen-1){
                 for(int k = 0; k < maxLen; k++){
                     sb.append("-");
                 }
@@ -341,7 +341,10 @@ public class ObservationTable extends AbstractLearningMethod {
     }
 
     private List<TimeWords> getPrefixList(){
-        return new ArrayList<>(getPrefixSet());
+        List<TimeWords> sr = new ArrayList<>();
+        sr.addAll(s);
+        sr.addAll(r);
+        return sr;
     }
 
 }
